@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Debug",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe' '${workspaceFolder}\\lsofwin.sln' /p:Configuration=Debug /p:Platform=x64 /v:minimal /nologo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "clear": true
+            }
+        },
+        {
+            "label": "Build Release",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe' '${workspaceFolder}\\lsofwin.sln' /p:Configuration=Release /p:Platform=x64 /v:minimal /nologo",
+            "group": "build",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "clear": true
+            }
+        },
+        {
+            "label": "Rebuild Debug",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe' '${workspaceFolder}\\lsofwin.sln' /p:Configuration=Debug /p:Platform=x64 /t:Rebuild /v:minimal /nologo",
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Rebuild Release",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe' '${workspaceFolder}\\lsofwin.sln' /p:Configuration=Release /p:Platform=x64 /t:Rebuild /v:minimal /nologo",
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe' '${workspaceFolder}\\lsofwin.sln' /p:Configuration=Debug /p:Platform=x64 /t:Clean /v:minimal /nologo",
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "pwsh -ExecutionPolicy Bypass -File '${workspaceFolder}\\tests\\script_based\\run_tests.ps1' -LsofwinPath '${workspaceFolder}\\build\\Debug\\lsofwin.exe'",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "clear": true
+            },
+            "dependsOn": "Build Debug"
+        },
+        {
+            "label": "Run Tests (Release)",
+            "type": "shell",
+            "command": "pwsh -ExecutionPolicy Bypass -File '${workspaceFolder}\\tests\\script_based\\run_tests.ps1' -LsofwinPath '${workspaceFolder}\\build\\Release\\lsofwin.exe'",
+            "group": "test",
+            "problemMatcher": [],
+            "dependsOn": "Build Release"
+        }
+    ]
+}

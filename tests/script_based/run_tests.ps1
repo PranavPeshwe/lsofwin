@@ -35,7 +35,10 @@ Write-Host "=== lsofwin Integration Tests ===" -ForegroundColor Cyan
 Write-Host "Binary: $LsofwinPath" -ForegroundColor DarkGray
 Write-Host ""
 
-$testFiles = Get-ChildItem $PSScriptRoot -Filter "test_*.ps1" | Sort-Object Name
+# Load shared helpers
+. "$PSScriptRoot\test_helpers.ps1"
+
+$testFiles = Get-ChildItem $PSScriptRoot -Filter "test_*.ps1" | Where-Object { $_.Name -ne "test_helpers.ps1" } | Sort-Object Name
 $totalTests = 0
 $passedTests = 0
 $failedTests = 0
