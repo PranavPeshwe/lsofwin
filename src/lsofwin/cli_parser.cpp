@@ -1,4 +1,5 @@
 #include "cli_parser.h"
+#include "console_color.h"
 #include <sstream>
 #include <cstdlib>
 #include <regex>
@@ -6,31 +7,73 @@
 namespace lsofwin {
 
 std::string get_help_text(const char* program_name) {
+    const char* B  = color::c(color::BOLD);
+    const char* BC = color::c(color::BOLD_CYAN);
+    const char* BG = color::c(color::BOLD_GREEN);
+    const char* BY = color::c(color::BOLD_YELLOW);
+    const char* DM = color::c(color::DIM);
+    const char* R  = color::c(color::RESET);
+
     std::ostringstream oss;
-    oss << "lsofwin - List open files on Windows\n"
+    oss << BC << "lsofwin" << R << " - List open files on Windows\n"
         << "\n"
-        << "Usage: " << program_name << " [OPTIONS]\n"
+        << B << "USAGE:" << R << "\n"
+        << "  " << program_name << " [OPTIONS]\n"
         << "\n"
-        << "Options:\n"
-        << "  -p <pid>       Show only handles for the specified process ID\n"
-        << "  -c <name>      Show only handles for processes matching name (substring)\n"
-        << "  -f <regex>     Filter results by file path (regular expression)\n"
-        << "  -t <seconds>   Timeout per handle query operation (default: 5)\n"
-        << "  -j, --json     Output results in JSON format\n"
-        << "  -h, --help     Show this help message\n"
+        << B << "OPTIONS:" << R << "\n"
+        << "  " << BG << "-p" << R << " <pid>       Show only handles for the specified process ID\n"
+        << "  " << BG << "-c" << R << " <name>      Show only handles for processes matching name " << DM << "(case-insensitive substring)" << R << "\n"
+        << "  " << BG << "-f" << R << " <regex>     Filter results by file/object path " << DM << "(regular expression, case-insensitive)" << R << "\n"
+        << "  " << BG << "-t" << R << " <seconds>   Timeout per handle query operation " << DM << "(default: 5)" << R << "\n"
+        << "  " << BG << "-j" << R << ", " << BG << "--json" << R << "     Output results in JSON format\n"
+        << "  " << BG << "-h" << R << ", " << BG << "--help" << R << "     Show this help message\n"
         << "\n"
-        << "Examples:\n"
-        << "  " << program_name << "                  List all open file handles\n"
-        << "  " << program_name << " -p 1234          List handles for PID 1234\n"
-        << "  " << program_name << " -c notepad       List handles for notepad processes\n"
-        << "  " << program_name << " -f \".*\\.txt\"     List handles matching .txt files\n"
-        << "  " << program_name << " -j               Output all handles as JSON\n"
-        << "  " << program_name << " -p 1234 -j       Handles for PID 1234 as JSON\n"
-        << "  " << program_name << " -t 10            Use 10 second timeout\n"
+        << B << "EXAMPLES:" << R << "\n"
         << "\n"
-        << "Notes:\n"
-        << "  Running as Administrator is recommended for full results.\n"
-        << "  Without elevation, only handles accessible to the current user are shown.\n";
+        << "  " << BY << "# List all open handles (run as Admin for full results)" << R << "\n"
+        << "  " << program_name << "\n"
+        << "\n"
+        << "  " << BY << "# List handles for a specific process by PID" << R << "\n"
+        << "  " << program_name << " -p 1234\n"
+        << "\n"
+        << "  " << BY << "# Find handles opened by notepad" << R << "\n"
+        << "  " << program_name << " -c notepad\n"
+        << "\n"
+        << "  " << BY << "# Find which process has a specific file open" << R << "\n"
+        << "  " << program_name << " -f \"myfile\\.docx\"\n"
+        << "\n"
+        << "  " << BY << "# Find all open .txt files" << R << "\n"
+        << "  " << program_name << " -f \"\\.txt$\"\n"
+        << "\n"
+        << "  " << BY << "# Find all open .log or .txt files" << R << "\n"
+        << "  " << program_name << " -f \"\\.(log|txt)$\"\n"
+        << "\n"
+        << "  " << BY << "# Find files open under a specific directory" << R << "\n"
+        << "  " << program_name << " -f \"C:\\\\Users\\\\John\"\n"
+        << "\n"
+        << "  " << BY << "# Combine: .dll files opened by explorer" << R << "\n"
+        << "  " << program_name << " -c explorer -f \"\\.dll\"\n"
+        << "\n"
+        << "  " << BY << "# Combine: registry keys for a specific PID" << R << "\n"
+        << "  " << program_name << " -p 1234 -f \"REGISTRY\"\n"
+        << "\n"
+        << "  " << BY << "# JSON output for scripting and piping" << R << "\n"
+        << "  " << program_name << " -p 1234 -j\n"
+        << "\n"
+        << "  " << BY << "# JSON output piped to PowerShell for processing" << R << "\n"
+        << "  " << program_name << " -c chrome -j | ConvertFrom-Json | Where-Object { $_.type -eq 'File' }\n"
+        << "\n"
+        << "  " << BY << "# Use a longer timeout on busy systems" << R << "\n"
+        << "  " << program_name << " -t 15\n"
+        << "\n"
+        << "  " << BY << "# Quick scan with short timeout" << R << "\n"
+        << "  " << program_name << " -p 1234 -t 1\n"
+        << "\n"
+        << B << "NOTES:" << R << "\n"
+        << "  Running as " << BC << "Administrator" << R << " is recommended for full results.\n"
+        << "  Without elevation, only handles accessible to the current user are shown.\n"
+        << "  The " << BG << "-f" << R << " regex is matched case-insensitively against the full object path.\n"
+        << "  Use " << BG << "-t" << R << " to prevent hangs on pipe/device handles (default: 5 seconds).\n";
     return oss.str();
 }
 

@@ -1,4 +1,5 @@
 #include "output_formatter.h"
+#include "console_color.h"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -7,7 +8,10 @@ namespace lsofwin {
 
 std::string format_table(const HandleList& handles) {
     if (handles.empty()) {
-        return "No open handles found.\n";
+        std::ostringstream oss;
+        oss << color::c(color::BOLD_YELLOW) << "No open handles found."
+            << color::c(color::RESET) << "\n";
+        return oss.str();
     }
 
     // Calculate column widths
@@ -27,13 +31,15 @@ std::string format_table(const HandleList& handles) {
 
     std::ostringstream oss;
 
-    // Header
-    oss << std::left
+    // Header with color
+    oss << color::c(color::BOLD_CYAN)
+        << std::left
         << std::setw(static_cast<int>(w_cmd + 2))  << "COMMAND"
         << std::setw(static_cast<int>(w_pid + 2))  << "PID"
         << std::setw(static_cast<int>(w_user + 2)) << "USER"
         << std::setw(static_cast<int>(w_type + 2)) << "TYPE"
-        << "NAME\n";
+        << "NAME"
+        << color::c(color::RESET) << "\n";
 
     // Rows
     for (const auto& h : handles) {
@@ -47,10 +53,16 @@ std::string format_table(const HandleList& handles) {
         if (type.size() > w_type) type = type.substr(0, w_type - 1) + "~";
 
         oss << std::left
+            << color::c(color::BOLD_GREEN)
             << std::setw(static_cast<int>(w_cmd + 2))  << cmd
+            << color::c(color::RESET)
             << std::setw(static_cast<int>(w_pid + 2))  << h.pid
+            << color::c(color::DIM)
             << std::setw(static_cast<int>(w_user + 2)) << user
+            << color::c(color::RESET)
+            << color::c(color::YELLOW)
             << std::setw(static_cast<int>(w_type + 2)) << type
+            << color::c(color::RESET)
             << h.object_name << "\n";
     }
 

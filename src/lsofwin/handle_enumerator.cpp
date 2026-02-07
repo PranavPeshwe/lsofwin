@@ -1,5 +1,6 @@
 #include "handle_enumerator.h"
 #include "process_utils.h"
+#include "console_color.h"
 
 #include <Windows.h>
 #include <winternl.h>
@@ -123,8 +124,15 @@ namespace lsofwin {
 
 std::string get_privilege_warning() {
     if (!is_elevated()) {
-        return "WARNING: Not running as Administrator. Results may be incomplete.\n"
-               "         Run from an elevated command prompt for full results.\n";
+        std::string w;
+        w += color::c(color::BOLD_YELLOW);
+        w += "WARNING:";
+        w += color::c(color::RESET);
+        w += color::c(color::YELLOW);
+        w += " Not running as Administrator. Results may be incomplete.\n";
+        w += "         Run from an elevated command prompt for full results.\n";
+        w += color::c(color::RESET);
+        return w;
     }
     return "";
 }

@@ -88,6 +88,7 @@
     <ClCompile Include="process_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="console_color.h" />
     <ClInclude Include="cli_parser.h" />
     <ClInclude Include="handle_enumerator.h" />
     <ClInclude Include="handle_info.h" />
