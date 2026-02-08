@@ -13,28 +13,27 @@
 
 // NT API types not in standard headers
 extern "C" {
-    // NtQueryObject and NtQuerySystemInformation are declared in winternl.h
-    // but we need the full SystemHandleInformation structures
+    typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX {
+        PVOID      Object;
+        ULONG_PTR  UniqueProcessId;
+        ULONG_PTR  HandleValue;
+        ULONG      GrantedAccess;
+        USHORT     CreatorBackTraceIndex;
+        USHORT     ObjectTypeIndex;
+        ULONG      HandleAttributes;
+        ULONG      Reserved;
+    } SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX;
 
-    typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO {
-        USHORT UniqueProcessId;
-        USHORT CreatorBackTraceIndex;
-        UCHAR  ObjectTypeIndex;
-        UCHAR  HandleAttributes;
-        USHORT HandleValue;
-        PVOID  Object;
-        ULONG  GrantedAccess;
-    } SYSTEM_HANDLE_TABLE_ENTRY_INFO;
-
-    typedef struct _SYSTEM_HANDLE_INFORMATION {
-        ULONG NumberOfHandles;
-        SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
-    } SYSTEM_HANDLE_INFORMATION;
+    typedef struct _SYSTEM_HANDLE_INFORMATION_EX {
+        ULONG_PTR NumberOfHandles;
+        ULONG_PTR Reserved;
+        SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
+    } SYSTEM_HANDLE_INFORMATION_EX;
 }
 
 namespace {
 
-constexpr ULONG SystemHandleInformationClass = 16;
+constexpr ULONG SystemExtendedHandleInformationClass = 64;
 constexpr ULONG ObjectNameInformationClass = 1;
 constexpr ULONG ObjectTypeInformationClass = 2;
 
@@ -150,7 +149,7 @@ HandleList enumerate_handles(const FilterOptions& opts) {
     // Grow buffer until it fits
     while (true) {
         status = NtQuerySystemInformation(
-            (SYSTEM_INFORMATION_CLASS)SystemHandleInformationClass,
+            (SYSTEM_INFORMATION_CLASS)SystemExtendedHandleInformationClass,
             buffer.get(), buffer_size, &return_length);
 
         if (status == (NTSTATUS)0xC0000004L) { // STATUS_INFO_LENGTH_MISMATCH
@@ -163,7 +162,7 @@ HandleList enumerate_handles(const FilterOptions& opts) {
 
     if (status != 0) return results;
 
-    auto* handle_info = reinterpret_cast<SYSTEM_HANDLE_INFORMATION*>(buffer.get());
+    auto* handle_info = reinterpret_cast<SYSTEM_HANDLE_INFORMATION_EX*>(buffer.get());
 
     // Build process cache
     std::unordered_map<uint32_t, ProcessCacheEntry> proc_cache;
@@ -179,9 +178,9 @@ HandleList enumerate_handles(const FilterOptions& opts) {
     const ULONG obj_buf_size = 2048;
     auto obj_buffer = std::make_unique<char[]>(obj_buf_size);
 
-    for (ULONG i = 0; i < handle_info->NumberOfHandles; ++i) {
+    for (ULONG_PTR i = 0; i < handle_info->NumberOfHandles; ++i) {
         auto& entry = handle_info->Handles[i];
-        uint32_t pid = entry.UniqueProcessId;
+        uint32_t pid = static_cast<uint32_t>(entry.UniqueProcessId);
 
         // Apply PID filter early
         if (opts.filter_pid >= 0 && static_cast<int>(pid) != opts.filter_pid) {
