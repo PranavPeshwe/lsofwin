@@ -22,6 +22,7 @@ struct FilterOptions {
     int          timeout_seconds = 5;    // -t: timeout per operation in seconds
     bool         output_json = false;    // -j: output as JSON
     bool         show_help = false;      // -h: show help
+    bool         show_version = false;   // -v: show version
 };
 
 using HandleList = std::vector<HandleInfo>;

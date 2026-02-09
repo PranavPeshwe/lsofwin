@@ -26,6 +26,7 @@ std::string get_help_text(const char* program_name) {
         << "  " << BG << "-f" << R << " <regex>     Filter results by file/object path " << DM << "(regular expression, case-insensitive)" << R << "\n"
         << "  " << BG << "-t" << R << " <seconds>   Timeout per handle query operation " << DM << "(default: 5)" << R << "\n"
         << "  " << BG << "-j" << R << ", " << BG << "--json" << R << "     Output results in JSON format\n"
+        << "  " << BG << "-v" << R << ", " << BG << "--version" << R << "  Show version information\n"
         << "  " << BG << "-h" << R << ", " << BG << "--help" << R << "     Show this help message\n"
         << "\n"
         << B << "EXAMPLES:" << R << "\n"
@@ -85,6 +86,10 @@ bool parse_args(int argc, const char* const* argv, FilterOptions& opts, std::str
 
         if (arg == "-h" || arg == "--help") {
             opts.show_help = true;
+            return true;
+        }
+        else if (arg == "-v" || arg == "--version") {
+            opts.show_version = true;
             return true;
         }
         else if (arg == "-j" || arg == "--json") {

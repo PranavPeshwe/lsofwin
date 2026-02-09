@@ -92,6 +92,7 @@
     <ClInclude Include="cli_parser.h" />
     <ClInclude Include="handle_enumerator.h" />
     <ClInclude Include="handle_info.h" />
+    <ClInclude Include="version.h" />
     <ClInclude Include="output_formatter.h" />
     <ClInclude Include="process_utils.h" />
   </ItemGroup>

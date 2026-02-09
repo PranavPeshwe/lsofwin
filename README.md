@@ -23,6 +23,7 @@ Options:
   -f <regex>     Filter results by file path (regular expression)
   -t <seconds>   Timeout per handle query operation (default: 5)
   -j, --json     Output results in JSON format
+  -v, --version  Show version information
   -h, --help     Show this help message
 ```
 

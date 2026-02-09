@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Set version from tag
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          (Get-Content src/lsofwin/version.h) -replace 'LSOFWIN_VERSION ".*"', "LSOFWIN_VERSION `"$version`"" | Set-Content src/lsofwin/version.h
+          (Set-Content VERSION "$version`n" -NoNewline)
+
+      - name: Build Release
+        run: msbuild lsofwin.sln /p:Configuration=Release /p:Platform=x64
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lsofwin-x64
+          path: build/Release/lsofwin.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsofwin-x64
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: lsofwin.exe

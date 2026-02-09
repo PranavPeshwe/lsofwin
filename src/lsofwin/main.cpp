@@ -3,6 +3,7 @@
 #include "output_formatter.h"
 #include "process_utils.h"
 #include "console_color.h"
+#include "version.h"
 
 #include <iostream>
 #include <string>
@@ -19,6 +20,11 @@ int main(int argc, char* argv[]) {
                   << lsofwin::color::c(lsofwin::color::RESET) << "\n\n";
         std::cerr << lsofwin::get_help_text(argv[0]);
         return 1;
+    }
+
+    if (opts.show_version) {
+        std::cout << "lsofwin " << LSOFWIN_VERSION << "\n";
+        return 0;
     }
 
     if (opts.show_help) {

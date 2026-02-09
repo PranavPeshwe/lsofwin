@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        run: msbuild lsofwin.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64
+
+      - name: Run tests
+        run: pwsh -File tests/script_based/run_tests.ps1 -LsofwinPath build/${{ matrix.configuration }}/lsofwin.exe
